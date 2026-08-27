@@ -1,0 +1,52 @@
+# For comparison to iam.yaml, this template demonstrates best practices for IAM by implementing least-privilege access for an EC2 role. Instead of granting broad permissions like PowerUserAccess, it restricts the role to only allow read access to a specific S3 bucket.
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Least-privilege IAM resources for EC2'
+
+Parameters:
+  S3BucketName:
+    Type: String
+    Description: 'Name of the S3 bucket the EC2 role may read from'
+
+Resources:
+  # Replaces the original PowerUserAccess policy with least-privilege access.
+  EC2Role:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: S3ReadOnlyForSpecificBucket
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource: !Sub 'arn:${AWS::Partition}:s3:::${S3BucketName}/*'
+
+  # Required to attach the IAM role to an EC2 instance.
+  EC2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref EC2Role
+
+Outputs:
+  EC2RoleArn:
+    Description: 'ARN of the least-privilege EC2 role'
+    Value: !GetAtt EC2Role.Arn
+
+  EC2InstanceProfileName:
+    Description: 'Instance profile name for EC2'
+    Value: !Ref EC2InstanceProfile
+
+    aws cloudformation deploy \
+  --template-file iam-best-pratice.yaml \
+  --stack-name iam-best-practice \
+  --parameter-overrides S3BucketName=your-bucket-name \
+  --capabilities CAPABILITY_IAM
