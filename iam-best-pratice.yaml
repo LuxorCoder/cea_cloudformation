@@ -44,9 +44,3 @@ Outputs:
   EC2InstanceProfileName:
     Description: 'Instance profile name for EC2'
     Value: !Ref EC2InstanceProfile
-
-    aws cloudformation deploy \
-  --template-file iam-best-pratice.yaml \
-  --stack-name iam-best-practice \
-  --parameter-overrides S3BucketName=your-bucket-name \
-  --capabilities CAPABILITY_IAM
