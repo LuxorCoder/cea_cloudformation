@@ -1,0 +1,30 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: 'S3 static file hosting'
+
+Resources:
+  MyS3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: 'my-static-website-lc'
+     # AccessControl: PublicRead
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: error.html
+      PublicAccessBlockConfiguration:
+        RestrictPublicBuckets: false
+  
+  BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref MyS3Bucket
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: PublicReadGetObject #unique identifier for the statement
+            Effect: Allow #specifies whether the statement allows or denies access
+            Principal: "*" #entities that are allowed or denied access to a resource
+            Action:
+              - s3:GetObject
+            Resource:
+              - !Sub "${MyS3Bucket.Arn}/*" #arn:aws:s3:::${MyS3Bucket}/*
+              #substitue the value of the MyS3Bucket resource's Arn property into the string
