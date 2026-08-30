@@ -214,3 +214,37 @@ Resources:
           FromPort: -1
           ToPort: -1
           SourceSecurityGroupId: !Ref AppInstance1aSG #app1a security group
+          
+    # RDS Security Group
+  RDSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow MySQL access from App instances
+      VpcId: !Ref MyVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          SourceSecurityGroupId: !Ref AppInstance1aSG
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          SourceSecurityGroupId: !Ref AppInstance2bSG
+
+Outputs:
+  DataPrivateSubnet1a:
+    Value: !Ref DataPrivateSubnet1a
+    Export:
+      Name: vpc-stack-DataPrivateSubnet1a
+  
+  DataPrivateSubnet2b:
+    Value: !Ref DataPrivateSubnet2b
+    Export:
+      Name: vpc-stack-DataPrivateSubnet2b
+  
+  #addition for rds-stack creation
+  RDSSecurityGroupId:
+    Description: Security group ID for RDS access
+    Value: !Ref RDSSecurityGroup
+    Export:
+      Name: vpc-stack-RDSSecurityGroupId
