@@ -1,0 +1,29 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Create an RDS instance
+
+Resources:
+  MyDBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnet group for RDS instance
+      SubnetIds:
+        #- subnet-placeholder #replace with your actual subnet IDs
+        #- subnet-placeholder #replace with your actual subnet IDs
+        - !ImportValue vpc-stack-DataPrivateSubnet1a
+        - !ImportValue vpc-stack-DataPrivateSubnet2b
+
+  MyDBInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceIdentifier: MyNewRDS
+      MasterUsername: admin
+      MasterUserPassword: password #not best pratice to hardcode passwords in templates, consider using AWS Secrets Manager or SSM Parameter Store
+      DBInstanceClass: db.t4g.micro
+      Engine: mysql
+      EngineVersion: 8.4.9
+      AllocatedStorage: 20
+      BackupRetentionPeriod: 1
+      DBSubnetGroupName: !Ref MyDBSubnetGroup
+      VPCSecurityGroups:
+        #- sg-12345678 #replace with your actual security group ID
+        - !ImportValue vpc-stack-RDSSecurityGroupId
